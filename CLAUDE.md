@@ -1,84 +1,71 @@
-# Q — Priority Under Pressure
-## Project Context for Claude Code
+# CLAUDE.md — Q (Priority Under Pressure) web app
 
-### What this project is
-Q is an AI-powered triage tool for overwhelmed knowledge workers.
-It surfaces one clear next action at the moment of cognitive overload.
-This is a UX portfolio case study and functional MVP.
+## What this is
+An existing Vite + React app (React Router), already deployed on Vercel. Most pages already exist. This is a **connect-and-polish** job, **not** a rebuild. The goal is a clickable, demo-ready web app for a UX portfolio.
 
-### Design system
-- Framework: React + Vite + TypeScript
-- Styling: Tailwind CSS v3 with semantic tokens
-- Components: shadcn/ui
-- Animation: Framer Motion
-- Font: Inter (Google Fonts)
+## The prime directive (read first)
+**Do not rebuild, redesign, or re-extract anything. Reuse what exists. Make minimal, surgical changes.**
+Before writing any code, **list every existing page/route in the repo and your plan, then wait for confirmation.** Do not write code until the plan is approved.
 
-### Token conventions
-Never use hardcoded hex values in components.
-Always use semantic Tailwind class names:
-- Backgrounds: bg-surface-default, bg-surface-raised, 
-  bg-surface-elevated, bg-ambient-calm, bg-ambient-building, 
-  bg-ambient-heavy
-- Text: text-content-primary, text-content-secondary, 
-  text-content-muted, text-content-accent
-- Borders: border-line-default, border-line-subtle
-- Actions: bg-action-primary, bg-action-secondary
-- States: text-staturgent, text-state-success, bg-state-focus
+## Hard constraints (these protect a limited budget — respect them)
+- Do NOT read from or connect to any Figma file. All design is already in the repo. There is no external design source for this job.
+- Do NOT rebuild existing pages or components. Reuse them as-is.
+- Do NOT redefine the design tokens. They already exist in tokens/ and tailwind.config.js — use them.
+- Do NOT add a backend, da, real auth, analytics, or any dependency not already present.
+- Do NOT invent new page designs. If a page in the flow is missing, STOP and ask.
+- Work in ONE focused pass where possible: audit -> plan -> (confirm) -> implement. Minimize round-trips.
 
-### Design principles
-1. Confident ally — calm, direct, never alarming
-2. One task at a time — never show a list when one item will do
-3. Why before what — rationale appears before the task
-4. Quiet by default — ambient mode is passive, triage is activated
-5. No gamification — no streaks, gems, points, or celebrations
+## The persona
+Single user, hardcoded: **Sam**.
+- Avatar initial: **S**
+- Login: username sam (or sam@q.app), password hardcoded (pick one, keep it simple). Mocked check only — no real auth backend.
+- On successful login -> redirect to the **Ambient** (home) page.
 
-### Emotional register
-The product should feel like a trusted colleague who has already 
-assessed the situation. Not a drill sergeant. Not a cheerleader. 
-A calm, competent person handing you one clear next step.
+## Theme
+**Light-first.** The app defaults to the light theme on every page. Tokens already exist — use them; do not redefine.
 
-### Screen inventory
-- /ambient → AmbientView.tsx (passive daily view)
-- /detect → DetectOffer.tsx (overload detected, offer to help)
-- /task → TaskCard.tsx (one task surfaced with rationale)
-- /focus → FocusMode.tsx (working, everything else hidden)
-- /reorient → ReorientPrompt.tsx (interruption, binary choice)
-- /clear → ClearState.tsx (noth
+## Pages — what to include and exclude
 
-mkdir -p "/Users/fay/Q - Priority under pressure/Q Design System/.claude/commands"
-cat > "/Users/fay/Q - Priority under pressure/Q Design System/.claude/commands/extract-tokens.md" << 'EOF'
-# /extract-tokens
+**EXCLUDE from the app flow (the ONLY exclusion):**
+- design — the design-system page. Keep it in the repo, but do not link it into the app navigation or user flow.
 
-Extract a design system from reference screenshots or a live URL.
+(There is no landing/marketing page. Do not exclude or remove anything other than design.)
 
-## Input
-Reference images should be in /reference/ folder.
-Or provide a live URL as an argument.
+**INCLUDE and connect into the flow** (reuse existing pages):
+- **Logimbient
+- **Ambient (home)** — the resting state. Leads with STATE: how many tasks, the shape of the day, with a small, de-emphasized task list underneath. This intentionally replaced an older flat task list — the ambient framing is the design; do NOT turn it back into a plain list.
+- **Detect** -> offered intervention (renders over Ambient, dimmed scrim behind)
+- **Activate** -> one task surfaced
+- **Focus** -> protected working state
+- **Clear** -> resolution (if the page exists; if not, ask before creating)
 
-## Process
-1. Analyze all reference images for:
-   - Background colors (page, surface, elevated, overlay)
-   - Text colors (primary, secondary, muted, accent)
-   - Border colors
-   - Action/button colors (primary, secondary, destructive)
-   - Typography: font family, sizes used, weights used
-   - Spacing rhythm: identify the base unit (4px or 8px)
-   - Border radius patterns
-   - Shadow styles
+Flow, with exits:
+Login -> Ambient
+Ambient -> Detect -> Activate -> Focus -> Clear
+Every active state has an exit back to Ambient (user is never trapped).
+Detect "I'm fine, thanks" -> back to Ambient
+Activate "View all tasks" -> back to Ambient
+Focus "Exit focus mode" -> back to Ambient
 
-2. For every value you are uncertain about, add "ESTIMATED: true"
-   Do not guess font names — write "VERIFY" if uncertain
+## Navigation bar
+Add a persistent top nav to all app pages **except** the login page and the design page.
+- **Logo (Q) left — generate it in code (do NOT read Figma): the capital letter Q, white, at a bold/heavht, in the app's own font family (the one set in tailwind.config.js / the token system, for visual consistency), centered on a dark near-black rounded-square tile, ~40-48px. Inline SVG or a styled div.
+- **Status pill** center — reuse the existing Pill component. State depends on the page:
+  - Ambient -> no pill, or a calm resting state (e.g. the date). The pill's appearance is itself the Detect signal.
+  - Detect -> "Detecting" (amber)
+  - Activate -> "Suggesting" (blue)
+  - Focus -> "Focus active" (green)
+  - Clear -> "All clear" (gray)
+- **Right side:** notification bell + user avatar (avatar = "S" for Sam).
 
-3. Output a single file: tokens/raw.json
-   Structure:
-   {
-     "source": "url or screenshot filenames",
-     "extracted_at": "timestamp",
-     "primitive": { "color": {}, "typography": {}, 
-                  "spacing": {}, "radius": {}, "shadow": {} },
-     "notes": "anything the designer should manually verify"
-   }
+## Anything a real web app needs (add only if trivial and expected)
+- A working logout (returns to login) from the avatar/menu.
+- Sensible page titles / clean routing so URLs read well.
+- Responsive layout that doesn't break on smaller screens.
+- Nothing beyond this without asking.
 
-## Output
-- tokens/raw.json
-- A summary of what was extracted and what needs verification
+## Deliverable
+A clickable web app: log in as Sam -> move through Ambient -> Detect -> Activate -> Focus -> Clear, wh a consistent nav bar throughout, light theme, working exits. Demo-ready for a portfolio.
+
+## Source of truth
+This repo's existing code + this file (+ SCREENS.md) are the only sources. There is no Figma or external design source to read for this job.

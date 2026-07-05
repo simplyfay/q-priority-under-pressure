@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
 
 const backgroundTasks = [
@@ -21,8 +22,9 @@ const backgroundTasks = [
 ]
 
 export default function DetectOffer() {
+  const navigate = useNavigate()
   return (
-    <div className="relative min-h-[calc(100vh-3rem)] overflow-hidden bg-surface-default">
+    <div className="relative min-h-[calc(100vh-3.5rem)] overflow-hidden bg-surface-default">
       <div
         className="pointer-events-none absolute inset-0 px-6 pt-20 opacity-20 blur-sm"
         aria-hidden
@@ -42,7 +44,7 @@ export default function DetectOffer() {
         </div>
       </div>
 
-      <div className="relative z-10 flex min-h-[calc(100vh-3rem)] flex-col items-center px-6 pt-10">
+      <div className="relative z-10 flex min-h-[calc(100vh-3.5rem)] flex-col items-center px-6 pt-10">
         <motion.div
           initial={{ y: -48, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -70,10 +72,20 @@ export default function DetectOffer() {
           </p>
 
           <div className="mt-6 flex flex-col gap-3">
-            <Button variant="primary" size="lg" className="w-full">
+            <Button
+              variant="primary"
+              size="lg"
+              className="w-full"
+              onClick={() => navigate('/activate')}
+            >
               Yes, help me focus
             </Button>
-            <Button variant="secondary" size="lg" className="w-full font-medium">
+            <Button
+              variant="secondary"
+              size="lg"
+              className="w-full font-medium"
+              onClick={() => navigate('/ambient')}
+            >
               I&apos;m fine, thanks
             </Button>
           </div>

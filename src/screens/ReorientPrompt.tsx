@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
 import { FocusModeBackground } from './FocusMode'
 
 export default function ReorientPrompt() {
+  const navigate = useNavigate()
   return (
-    <div className="relative min-h-[calc(100vh-3rem)] overflow-hidden">
+    <div className="relative min-h-[calc(100vh-3.5rem)] overflow-hidden">
       <div className="pointer-events-none absolute inset-0 opacity-40">
         <FocusModeBackground />
       </div>
@@ -33,10 +35,19 @@ export default function ReorientPrompt() {
         </div>
 
         <div className="flex flex-col gap-3">
-          <Button variant="primary" size="lg">
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={() => navigate('/focus')}
+          >
             Continue current task
           </Button>
-          <Button variant="secondary" size="lg" className="font-medium">
+          <Button
+            variant="secondary"
+            size="lg"
+            className="font-medium"
+            onClick={() => navigate('/activate')}
+          >
             Switch to new priority
           </Button>
         </div>

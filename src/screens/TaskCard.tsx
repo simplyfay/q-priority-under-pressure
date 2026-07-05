@@ -1,22 +1,16 @@
 import { motion } from 'framer-motion'
-import { ArrowLeft } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
 
 export default function TaskCard() {
+  const navigate = useNavigate()
   return (
-    <div className="flex min-h-[calc(100vh-3rem)] flex-col bg-surface-default">
-      <header className="relative flex items-center justify-center px-6 py-5">
-        <button
-          type="button"
-          className="absolute left-6 text-content-secondary transition-colors hover:text-content-primary"
-          aria-label="Go back"
-        >
-          <ArrowLeft className="h-5 w-5" strokeWidth={2} />
-        </button>
-        <span className="text-sm text-content-secondary">Q</span>
-      </header>
+    <div className="flex min-h-[calc(100vh-3.5rem)] flex-col bg-surface-default">
+      <div className="flex flex-1 flex-col items-center justify-center px-6 py-10">
+        <p className="mb-6 text-sm text-content-secondary">
+          Here&apos;s where to start.
+        </p>
 
-      <div className="flex flex-1 flex-col items-center justify-center px-6 pb-16">
         <motion.article
           initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -32,7 +26,8 @@ export default function TaskCard() {
           </h1>
 
           <p className="mb-6 text-base leading-relaxed text-content-secondary">
-            Sarah flagged this 2 hours ago. Client presentation is at 5pm today.
+            Q surfaced this from your context — it&apos;s the oldest unblocked
+            item and three people are waiting on it before end of day.
           </p>
 
           <div className="mb-6 flex flex-wrap gap-2">
@@ -45,17 +40,25 @@ export default function TaskCard() {
           </div>
 
           <div className="flex gap-3">
-            <Button variant="primary" className="flex-1">
+            <Button
+              variant="primary"
+              className="flex-1"
+              onClick={() => navigate('/focus')}
+            >
               Start task
             </Button>
-            <Button variant="secondary" className="flex-1 font-medium">
+            <Button
+              variant="secondary"
+              className="flex-1 font-medium"
+              onClick={() => navigate('/ambient?tasks=1')}
+            >
               View all tasks
             </Button>
           </div>
         </motion.article>
 
         <p className="mt-4 text-center text-xs text-content-muted">
-          12 other tasks are waiting. They can.
+          11 others are waiting. They can.
         </p>
       </div>
     </div>

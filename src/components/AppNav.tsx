@@ -24,6 +24,7 @@ const ROUTE_PILL: Record<string, PillStatus> = {
   '/detect': 'detecting',
   '/activate': 'suggesting',
   '/focus': 'focus',
+  '/recalculating': 'recalculating',
   '/reorient': 'recalculating',
   '/clear': 'clear',
 }

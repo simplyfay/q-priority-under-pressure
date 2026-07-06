@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
-import { useTasks } from '../lib/tasks'
 
 const backgroundTasks = [
   {
@@ -24,7 +23,6 @@ const backgroundTasks = [
 
 export default function DetectOffer() {
   const navigate = useNavigate()
-  const { resetTask } = useTasks()
 
   return (
     <div className="relative min-h-[calc(100vh-3.5rem)] overflow-hidden bg-surface-default">
@@ -79,10 +77,7 @@ export default function DetectOffer() {
               variant="primary"
               size="lg"
               className="w-full"
-              onClick={() => {
-                resetTask()
-                navigate('/activate')
-              }}
+              onClick={() => navigate('/activate')}
             >
               Yes, help me focus
             </Button>

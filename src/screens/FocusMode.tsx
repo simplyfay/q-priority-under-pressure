@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
+import { CheckCircle2, Circle } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { useTasks } from '../lib/tasks'
 
@@ -11,7 +12,6 @@ const fadeUp = (delay: number) => ({
 
 // Reinforcement copy honest to the real completion level.
 function focusCopy(progress: number) {
-  if (progress <= 0) return 'Good start. Keep going.'
   if (progress >= 0.67) return 'Almost there.'
   if (progress < 0.34) return 'Good start. Keep going.'
   return 'Halfway there. Keep going.'
@@ -49,7 +49,17 @@ export function FocusModeBackground() {
 
 export default function FocusMode() {
   const navigate = useNavigate()
-  const { completeTask } = useTasks()
+  const { activeTask, isLastTask, allPrereqsDone, togglePrereq, completeTask } =
+    useTasks()
+  const prereqs = activeTask.prerequisites
+  const gated = prereqs.length > 0 && !allPrereqsDone
+
+  const onComplete = () => {
+    // Capture before completeTask() advances the queue index.
+    const last = isLastTask
+    completeTask()
+    navigate(last ? '/clear' : '/recalculating')
+  }
 
   return (
     <div className="relative">
@@ -59,14 +69,55 @@ export default function FocusMode() {
         {...fadeUp(0.4)}
         className="fixed inset-x-0 bottom-0 flex flex-col items-center gap-3 px-6 pb-10"
       >
+        {prereqs.length > 0 && (
+          <div className="w-full max-w-sm rounded-2xl border border-line-subtle bg-surface-raised p-4">
+            <p className="mb-3 text-xs font-medium uppercase tracking-widest text-content-muted">
+              Finish these first
+            </p>
+            <ul className="flex flex-col gap-1">
+              {prereqs.map((p) => (
+                <li key={p.id}>
+                  <button
+                    type="button"
+                    onClick={() => togglePrereq(p.id)}
+                    className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left text-sm transition-colors hover:bg-surface-subtle"
+                    aria-pressed={p.done}
+                  >
+                    {p.done ? (
+                      <CheckCircle2
+                        className="h-4 w-4 shrink-0 text-state-success"
+                        strokeWidth={2}
+                        aria-hidden
+                      />
+                    ) : (
+                      <Circle
+                        className="h-4 w-4 shrink-0 text-content-muted"
+                        strokeWidth={2}
+                        aria-hidden
+                      />
+                    )}
+                    <span
+                      className={
+                        p.done
+                          ? 'text-content-muted line-through'
+                          : 'text-content-secondary'
+                      }
+                    >
+                      {p.label}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <Button
           variant="primary"
           size="lg"
           className="max-w-sm"
-          onClick={() => {
-            completeTask()
-            navigate('/clear')
-          }}
+          disabled={gated}
+          onClick={onComplete}
         >
           Mark complete
         </Button>

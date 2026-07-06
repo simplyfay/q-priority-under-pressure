@@ -4,11 +4,11 @@ import { ChevronDown } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import { useTasks } from '../lib/tasks'
 
-// The full pool Q watches quietly. One of these (the Q3 proposal) is what
-// Activate later surfaces; the rest are the "11 others waiting."
+// The full pool Q watches quietly. Q's priority queue (in task context) walks
+// the user through the most important of these; this list stays de-emphasized.
 const tasks = [
   { title: 'Review Q3 proposal draft', meta: 'Due 3pm · High impact' },
-  { title: 'Reply to Sarah re: budget approval', meta: 'Waiting on you · 3 people blocked' },
+  { title: 'Reply to Sarah re: Q3 proposal', meta: 'Waiting on you · 3 people blocked' },
   { title: 'Prep for 2pm standup', meta: 'Due today · Medium' },
   { title: 'Approve design mockups', meta: 'Waiting on you · 1h' },
   { title: 'Send weekly status update', meta: 'Due today · Medium' },
@@ -45,9 +45,9 @@ export default function AmbientView() {
 
         <div className="mt-8">
           <div className="mb-2 flex justify-between text-xs text-content-muted">
-            <span>Day progress</span>
+            <span>Priority queue</span>
             <span>
-              {completed} of {total} · {pct}%
+              {completed} of {total} cleared · {pct}%
             </span>
           </div>
           <div className="h-1.5 overflow-hidden rounded-full bg-surface-elevated">

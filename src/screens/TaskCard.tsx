@@ -1,7 +1,30 @@
+import type { ComponentType } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
+import {
+  Mail,
+  MessageSquare,
+  FileSpreadsheet,
+  FileText,
+  Calendar,
+  Frame,
+  GitBranch,
+} from 'lucide-react'
 import { Button } from '../components/ui/button'
-import { useTasks } from '../lib/tasks'
+import { useTasks, type ToolId } from '../lib/tasks'
+
+type ToolIcon = ComponentType<{ className?: string; strokeWidth?: number }>
+
+// Which app each task needs — data-driven per task, rendered as a subtle row.
+const TOOL_META: Record<ToolId, { icon: ToolIcon; label: string }> = {
+  gmail: { icon: Mail, label: 'Gmail' },
+  slack: { icon: MessageSquare, label: 'Slack' },
+  excel: { icon: FileSpreadsheet, label: 'Excel' },
+  docs: { icon: FileText, label: 'Docs' },
+  calendar: { icon: Calendar, label: 'Calendar' },
+  figma: { icon: Frame, label: 'Figma' },
+  github: { icon: GitBranch, label: 'GitHub' },
+}
 
 export default function TaskCard() {
   const navigate = useNavigate()
@@ -33,7 +56,7 @@ export default function TaskCard() {
             {activeTask.rationale}
           </p>
 
-          <div className="mb-6 flex flex-wrap gap-2">
+          <div className="mb-5 flex flex-wrap gap-2">
             {activeTask.tags.map((tag) => (
               <span
                 key={tag.label}
@@ -46,6 +69,24 @@ export default function TaskCard() {
                 {tag.label}
               </span>
             ))}
+          </div>
+
+          {/* Tools this task needs — subtle, data-driven per task. */}
+          <div className="mb-6 flex items-center gap-3 border-t border-line-subtle pt-4 text-content-muted">
+            <span className="text-[10px] font-medium uppercase tracking-widest">
+              Opens
+            </span>
+            <div className="flex items-center gap-3">
+              {activeTask.tools.map((id) => {
+                const { icon: Icon, label } = TOOL_META[id]
+                return (
+                  <span key={id} title={label} className="inline-flex">
+                    <Icon className="h-4 w-4" strokeWidth={1.75} />
+                    <span className="sr-only">{label}</span>
+                  </span>
+                )
+              })}
+            </div>
           </div>
 
           <div className="flex gap-3">

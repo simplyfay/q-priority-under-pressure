@@ -6,7 +6,14 @@ import { useTasks } from '../lib/tasks'
 
 export default function ReorientPrompt() {
   const navigate = useNavigate()
-  const { switchTask } = useTasks()
+  const { activeTask, queue, currentIndex, switchToTask } = useTasks()
+
+  // The interruption references a DIFFERENT task than the current one: the next
+  // not-yet-done priority in the queue (fall back to any other task).
+  const incoming =
+    queue.find((t, i) => i >= currentIndex && t.id !== activeTask.id) ??
+    queue.find((t) => t.id !== activeTask.id) ??
+    null
 
   return (
     <div className="relative min-h-[calc(100vh-3.5rem)] overflow-hidden">
@@ -26,14 +33,27 @@ export default function ReorientPrompt() {
         />
 
         <div>
-          <p className="text-base font-semibold text-content-primary">
-            New message from Sarah
+          <p className="text-xs font-medium uppercase tracking-widest text-content-accent">
+            New priority came in
           </p>
-          <p className="mt-1 text-sm text-content-secondary">
-            Re: Q3 proposal — can we push to 6pm?
-          </p>
-          <p className="mt-3 mb-6 text-xs text-content-accent">
-            Q has recalculated. Your current task is still the priority.
+          {incoming ? (
+            <>
+              <p className="mt-2 text-base font-semibold text-content-primary">
+                {incoming.title}
+              </p>
+              <p className="mt-1 text-xs uppercase tracking-widest text-content-muted">
+                {incoming.eyebrow}
+              </p>
+            </>
+          ) : (
+            <p className="mt-2 text-base font-semibold text-content-primary">
+              Something needs your attention
+            </p>
+          )}
+          <p className="mt-3 mb-6 text-sm text-content-secondary">
+            You&apos;re on{' '}
+            <span className="text-content-primary">“{activeTask.title}”</span>.
+            Q recalculated — finish this one, or switch to the new priority.
           </p>
         </div>
 
@@ -49,8 +69,9 @@ export default function ReorientPrompt() {
             variant="secondary"
             size="lg"
             className="font-medium"
+            disabled={!incoming}
             onClick={() => {
-              switchTask()
+              if (incoming) switchToTask(incoming.id)
               navigate('/activate')
             }}
           >

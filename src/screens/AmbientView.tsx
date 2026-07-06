@@ -1,8 +1,9 @@
 import * as React from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Square, SquareCheck } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import { useTasks } from '../lib/tasks'
+import { ProgressMeter } from '../components/ui/ProgressMeter'
 
 // The full pool Q watches quietly. Q's priority queue (in task context) walks
 // the user through the most important of these; this list stays de-emphasized.
@@ -24,8 +25,11 @@ const tasks = [
 export default function AmbientView() {
   const [searchParams] = useSearchParams()
   const [open, setOpen] = React.useState(searchParams.get('tasks') === '1')
-  const { completed, total, progress } = useTasks()
+  const { queue, currentIndex, completed, total, progress } = useTasks()
   const pct = Math.round(progress * 100)
+
+  // Titles of the priority-queue tasks Q has already cleared this session.
+  const doneTitles = new Set(queue.slice(0, currentIndex).map((t) => t.title))
 
   return (
     <motion.div
@@ -40,23 +44,18 @@ export default function AmbientView() {
           Your day looks manageable
         </h1>
         <p className="mt-3 text-base text-content-secondary">
-          12 tasks · 2 meetings · 4 hours free
+          {tasks.length} tasks on your plate · 2 meetings · 4 hours free
+        </p>
+        <p className="mt-1 text-sm text-content-secondary">
+          Q narrowed them to {total} to focus on right now.
         </p>
 
-        <div className="mt-8">
-          <div className="mb-2 flex justify-between text-xs text-content-muted">
-            <span>Priority queue</span>
-            <span>
-              {completed} of {total} cleared · {pct}%
-            </span>
-          </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-surface-elevated">
-            <div
-              className="h-full rounded-full bg-action-primary transition-[width] duration-500"
-              style={{ width: `${pct}%` }}
-            />
-          </div>
-        </div>
+        <ProgressMeter
+          className="mt-8"
+          tone="primary"
+          pct={pct}
+          label={`${completed} of ${total} priorities cleared`}
+        />
       </div>
 
       {/* The task list stays quiet and collapsed underneath. */}
@@ -89,19 +88,41 @@ export default function AmbientView() {
               className="mt-2 overflow-hidden"
             >
               <div className="flex flex-col divide-y divide-line-subtle rounded-xl border border-line-subtle">
-                {tasks.map((task) => (
-                  <li
-                    key={task.title}
-                    className="flex items-center justify-between gap-4 px-4 py-3"
-                  >
-                    <span className="text-sm text-content-secondary">
-                      {task.title}
-                    </span>
-                    <span className="shrink-0 text-xs text-content-muted">
-                      {task.meta}
-                    </span>
-                  </li>
-                ))}
+                {tasks.map((task) => {
+                  const done = doneTitles.has(task.title)
+                  return (
+                    <li
+                      key={task.title}
+                      className="flex items-center gap-3 px-4 py-3"
+                    >
+                      {done ? (
+                        <SquareCheck
+                          className="h-4 w-4 shrink-0 text-state-success"
+                          strokeWidth={2}
+                          aria-label="Completed"
+                        />
+                      ) : (
+                        <Square
+                          className="h-4 w-4 shrink-0 text-content-muted"
+                          strokeWidth={2}
+                          aria-hidden
+                        />
+                      )}
+                      <span
+                        className={
+                          done
+                            ? 'text-sm text-content-muted line-through'
+                            : 'text-sm text-content-secondary'
+                        }
+                      >
+                        {task.title}
+                      </span>
+                      <span className="ml-auto shrink-0 text-xs text-content-muted">
+                        {task.meta}
+                      </span>
+                    </li>
+                  )
+                })}
               </div>
             </motion.ul>
           )}

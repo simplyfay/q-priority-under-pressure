@@ -2,7 +2,8 @@ import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { CheckCircle2, Circle } from 'lucide-react'
 import { Button } from '../components/ui/button'
-import { useTasks } from '../lib/tasks'
+import { ProgressMeter } from '../components/ui/ProgressMeter'
+import { useTasks, type QueueTask } from '../lib/tasks'
 
 const fadeUp = (delay: number) => ({
   initial: { opacity: 0, y: 12 },
@@ -10,18 +11,21 @@ const fadeUp = (delay: number) => ({
   transition: { duration: 0.8, ease: 'easeOut' as const, delay },
 })
 
-// Reinforcement copy honest to the real completion level.
-function focusCopy(progress: number) {
-  if (progress >= 0.67) return 'Almost there.'
-  if (progress < 0.34) return 'Good start. Keep going.'
-  return 'Halfway there. Keep going.'
+// Current-task progress: how many of this task's steps (prerequisites) are done.
+// A task with no prerequisites is a single ready-to-do action.
+function stepProgress(task: QueueTask) {
+  const total = task.prerequisites.length
+  const done = task.prerequisites.filter((p) => p.done).length
+  const pct = total ? Math.round((done / total) * 100) : 0
+  const label = total ? `${done} of ${total} steps done` : 'Ready to complete'
+  return { total, done, pct, label }
 }
 
-// The calm working surface — one task, progress, reinforcement. Reused
-// (dimmed) as the paused backdrop in Reorient, so it holds no actions itself.
+// The calm paused surface reused (dimmed) as the Reorient backdrop: the current
+// task title and its step progress, no actions.
 export function FocusModeBackground() {
-  const { activeTask, progress } = useTasks()
-  const pct = Math.round(progress * 100)
+  const { activeTask } = useTasks()
+  const step = stepProgress(activeTask)
 
   return (
     <div className="flex h-full min-h-[calc(100vh-3.5rem)] flex-col items-center justify-center bg-surface-default px-6 pb-24">
@@ -31,17 +35,8 @@ export function FocusModeBackground() {
       >
         {activeTask.title}
       </motion.h1>
-
-      <motion.div {...fadeUp(0.15)} className="mt-6 w-48">
-        <div className="h-[3px] overflow-hidden rounded-full bg-surface-elevated">
-          <div
-            className="h-full rounded-full bg-state-success transition-[width] duration-500"
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-        <p className="mt-2 text-center text-xs text-content-muted">
-          {focusCopy(progress)}
-        </p>
+      <motion.div {...fadeUp(0.15)} className="mt-6 w-full max-w-xs">
+        <ProgressMeter pct={step.pct} label={step.label} tone="success" />
       </motion.div>
     </div>
   )
@@ -51,6 +46,7 @@ export default function FocusMode() {
   const navigate = useNavigate()
   const { activeTask, isLastTask, allPrereqsDone, togglePrereq, completeTask } =
     useTasks()
+  const step = stepProgress(activeTask)
   const prereqs = activeTask.prerequisites
   const gated = prereqs.length > 0 && !allPrereqsDone
 
@@ -63,14 +59,25 @@ export default function FocusMode() {
 
   return (
     <div className="relative">
-      <FocusModeBackground />
+      {/* Content sits toward the top: title, then step progress, then the
+          prerequisite checklist directly beneath. Actions pin to the bottom. */}
+      <div className="flex min-h-[calc(100vh-3.5rem)] flex-col items-center px-6 pb-40 pt-[10vh]">
+        <motion.h1
+          {...fadeUp(0)}
+          className="max-w-sm text-center text-3xl font-bold tracking-tight text-content-primary sm:text-4xl"
+        >
+          {activeTask.title}
+        </motion.h1>
 
-      <motion.div
-        {...fadeUp(0.4)}
-        className="fixed inset-x-0 bottom-0 flex flex-col items-center gap-3 px-6 pb-10"
-      >
+        <motion.div {...fadeUp(0.12)} className="mt-6 w-full max-w-xs">
+          <ProgressMeter pct={step.pct} label={step.label} tone="success" />
+        </motion.div>
+
         {prereqs.length > 0 && (
-          <div className="w-full max-w-sm rounded-2xl border border-line-subtle bg-surface-raised p-4">
+          <motion.div
+            {...fadeUp(0.24)}
+            className="mt-6 w-full max-w-sm rounded-2xl border border-line-subtle bg-surface-raised p-4"
+          >
             <p className="mb-3 text-xs font-medium uppercase tracking-widest text-content-muted">
               Finish these first
             </p>
@@ -109,9 +116,15 @@ export default function FocusMode() {
                 </li>
               ))}
             </ul>
-          </div>
+          </motion.div>
         )}
+      </div>
 
+      {/* Actions pinned to the bottom of the page. */}
+      <motion.div
+        {...fadeUp(0.4)}
+        className="fixed inset-x-0 bottom-0 flex flex-col items-center gap-3 bg-gradient-to-t from-surface-default via-surface-default px-6 pb-10 pt-6"
+      >
         <Button
           variant="primary"
           size="lg"

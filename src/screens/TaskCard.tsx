@@ -1,29 +1,29 @@
-import type { ComponentType } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
+import type { IconType } from 'react-icons'
 import {
-  Mail,
-  MessageSquare,
-  FileSpreadsheet,
-  FileText,
-  Calendar,
-  Frame,
-  GitBranch,
-} from 'lucide-react'
+  SiGmail,
+  SiGooglesheets,
+  SiGoogledocs,
+  SiGooglecalendar,
+  SiFigma,
+  SiGithub,
+} from 'react-icons/si'
+import { FaSlack } from 'react-icons/fa6'
 import { Button } from '../components/ui/button'
 import { useTasks, type ToolId } from '../lib/tasks'
 
-type ToolIcon = ComponentType<{ className?: string; strokeWidth?: number }>
-
-// Which app each task needs — data-driven per task, rendered as a subtle row.
-const TOOL_META: Record<ToolId, { icon: ToolIcon; label: string }> = {
-  gmail: { icon: Mail, label: 'Gmail' },
-  slack: { icon: MessageSquare, label: 'Slack' },
-  excel: { icon: FileSpreadsheet, label: 'Excel' },
-  docs: { icon: FileText, label: 'Docs' },
-  calendar: { icon: Calendar, label: 'Calendar' },
-  figma: { icon: Frame, label: 'Figma' },
-  github: { icon: GitBranch, label: 'GitHub' },
+// One tool -> one distinct monochrome brand icon + display name. Slack and
+// Excel were dropped from Simple Icons, so Slack uses Font Awesome and the
+// spreadsheet tool is Google Sheets. No two tools share an icon.
+const TOOL_META: Record<ToolId, { icon: IconType; label: string }> = {
+  gmail: { icon: SiGmail, label: 'Gmail' },
+  slack: { icon: FaSlack, label: 'Slack' },
+  sheets: { icon: SiGooglesheets, label: 'Google Sheets' },
+  docs: { icon: SiGoogledocs, label: 'Google Docs' },
+  calendar: { icon: SiGooglecalendar, label: 'Google Calendar' },
+  figma: { icon: SiFigma, label: 'Figma' },
+  github: { icon: SiGithub, label: 'GitHub' },
 }
 
 export default function TaskCard() {
@@ -71,19 +71,22 @@ export default function TaskCard() {
             ))}
           </div>
 
-          {/* Tools this task needs — subtle, data-driven per task. */}
-          <div className="mb-6 flex items-center gap-3 border-t border-line-subtle pt-4 text-content-muted">
-            <span className="text-[10px] font-medium uppercase tracking-widest">
-              Opens
+          {/* Tools this task needs — distinct brand icons, data-driven per task. */}
+          <div className="mb-6 flex items-center gap-3 border-t border-line-subtle pt-4">
+            <span className="text-[10px] font-medium uppercase tracking-widest text-content-muted">
+              Tools
             </span>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 text-content-secondary">
               {activeTask.tools.map((id) => {
                 const { icon: Icon, label } = TOOL_META[id]
                 return (
-                  <span key={id} title={label} className="inline-flex">
-                    <Icon className="h-4 w-4" strokeWidth={1.75} />
-                    <span className="sr-only">{label}</span>
-                  </span>
+                  <Icon
+                    key={id}
+                    title={label}
+                    aria-label={label}
+                    role="img"
+                    className="h-4 w-4"
+                  />
                 )
               })}
             </div>

@@ -11,7 +11,7 @@ export type TaskTag = { label: string; tone: 'urgent' | 'accent' }
 export type ToolId =
   | 'gmail'
   | 'slack'
-  | 'excel'
+  | 'sheets'
   | 'docs'
   | 'calendar'
   | 'figma'
@@ -35,9 +35,6 @@ const HIGH_IMPACT: TaskTag = { label: 'HIGH IMPACT', tone: 'accent' }
 const WAITING: TaskTag = { label: 'WAITING ON YOU', tone: 'accent' }
 const DUE_TODAY: TaskTag = { label: 'DUE TODAY', tone: 'accent' }
 
-// The task Q swaps in when Reorient's "Switch" is taken.
-const SWITCH_TASK_ID = 'sarah-reply'
-
 const INITIAL_QUEUE: QueueTask[] = [
   {
     id: 'q3-review',
@@ -50,10 +47,10 @@ const INITIAL_QUEUE: QueueTask[] = [
       { id: 'q3-p1', label: 'Read the latest comments thread', done: false },
       { id: 'q3-p2', label: 'Pull the updated budget numbers', done: false },
     ],
-    tools: ['gmail', 'excel', 'docs'],
+    tools: ['gmail', 'sheets', 'docs'],
   },
   {
-    id: SWITCH_TASK_ID,
+    id: 'sarah-reply',
     eyebrow: 'UNBLOCKED · TIME-SENSITIVE · UNBLOCKS 3',
     title: 'Reply to Sarah re: Q3 proposal',
     rationale:
@@ -99,7 +96,7 @@ type TaskContextValue = {
   allPrereqsDone: boolean
   togglePrereq: (prereqId: string) => void
   completeTask: () => void
-  switchTask: () => void
+  switchToTask: (taskId: string) => void
 }
 
 const TaskContext = React.createContext<TaskContextValue | null>(null)
@@ -140,18 +137,22 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
     setCurrentIndex((i) => Math.min(i + 1, total))
   }, [total])
 
-  // Reorient "Switch": bring the time-sensitive reply to the front of the
-  // remaining queue so it surfaces next. No-op if it's already current/done.
-  const switchTask = React.useCallback(() => {
-    setQueue((q) => {
-      const from = q.findIndex((t) => t.id === SWITCH_TASK_ID)
-      if (from < 0 || from <= currentIndex) return q
-      const copy = q.slice()
-      const [task] = copy.splice(from, 1)
-      copy.splice(currentIndex, 0, task)
-      return copy
-    })
-  }, [currentIndex])
+  // Reorient "Switch": move the given task to the current slot so it surfaces
+  // next. No-op if it's already current or not found.
+  const switchToTask = React.useCallback(
+    (taskId: string) => {
+      setQueue((q) => {
+        const from = q.findIndex((t) => t.id === taskId)
+        if (from < 0 || from === currentIndex) return q
+        const copy = q.slice()
+        const [task] = copy.splice(from, 1)
+        const insertAt = from < currentIndex ? currentIndex - 1 : currentIndex
+        copy.splice(insertAt, 0, task)
+        return copy
+      })
+    },
+    [currentIndex],
+  )
 
   const value = React.useMemo(
     () => ({
@@ -165,7 +166,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       allPrereqsDone,
       togglePrereq,
       completeTask,
-      switchTask,
+      switchToTask,
     }),
     [
       activeTask,
@@ -177,7 +178,7 @@ export function TaskProvider({ children }: { children: React.ReactNode }) {
       allPrereqsDone,
       togglePrereq,
       completeTask,
-      switchTask,
+      switchToTask,
     ],
   )
 

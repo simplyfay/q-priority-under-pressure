@@ -121,41 +121,42 @@ export default function AppNav() {
       <button
         type="button"
         onClick={() => navigate('/ambient')}
-        className="rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-state-focus"
+        className="flex items-center rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-state-focus"
         aria-label="Go to Ambient home"
       >
         <QLogo />
       </button>
 
-      {/* Center: the status pill (or resting date) */}
-      <div className="pointer-events-none absolute left-1/2 -translate-x-1/2">
-        <div className="pointer-events-auto">{center}</div>
+      {/* Center: the status pill (or resting date), vertically centered */}
+      <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div className="pointer-events-auto flex items-center">{center}</div>
       </div>
 
-      {/* Right: held-notifications (Focus) or bell popover, plus avatar + menu */}
+      {/* Right: held-notifications (Focus) or bell popover, plus avatar + menu.
+          Every control is h-9 and centered so they share one baseline. */}
       <div className="flex items-center gap-3">
         {isFocus ? (
           <button
             type="button"
             onClick={() => navigate('/reorient')}
-            className="flex items-center gap-1.5 rounded-full bg-surface-subtle px-3 py-1 text-xs text-content-muted transition-colors hover:text-content-secondary"
+            className="flex h-9 items-center gap-1.5 rounded-full bg-surface-subtle px-3 text-xs text-content-muted transition-colors hover:text-content-secondary"
             aria-label="3 notifications held — view interruption"
           >
             <Lock className="h-3.5 w-3.5" strokeWidth={2} aria-hidden />
             3 held · quiet
           </button>
         ) : (
-          <div className="relative" ref={notifRef}>
+          <div className="relative flex items-center" ref={notifRef}>
             <button
               type="button"
               onClick={() => setNotifOpen((o) => !o)}
-              className="relative -m-1.5 rounded-full p-1.5 text-content-muted transition-colors hover:text-content-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-state-focus"
+              className="relative flex h-9 w-9 items-center justify-center rounded-full text-content-muted transition-colors hover:text-content-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-state-focus"
               aria-haspopup="menu"
               aria-expanded={notifOpen}
               aria-label="Notifications"
             >
               <Bell className="h-5 w-5" strokeWidth={2} />
-              <span className="absolute right-0 top-0 h-2 w-2 rounded-full bg-action-primary" />
+              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-action-primary" />
             </button>
 
             {notifOpen && (
@@ -192,7 +193,7 @@ export default function AppNav() {
           </div>
         )}
 
-        <div className="relative" ref={menuRef}>
+        <div className="relative flex items-center" ref={menuRef}>
           <button
             type="button"
             onClick={() => setMenuOpen((o) => !o)}

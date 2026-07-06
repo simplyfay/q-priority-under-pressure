@@ -7,8 +7,8 @@ import { useAuth } from '../lib/auth'
 export default function Login() {
   const navigate = useNavigate()
   const { login } = useAuth()
-  const [username, setUsername] = React.useState('sam@q.app')
-  const [password, setPassword] = React.useState('focus')
+  const [username, setUsername] = React.useState('')
+  const [password, setPassword] = React.useState('')
   const [error, setError] = React.useState(false)
 
   const onSubmit = (e: React.FormEvent) => {
@@ -78,7 +78,7 @@ export default function Login() {
 
           {error && (
             <p className="text-sm text-action-destructive">
-              Incorrect credentials. Try sam / focus.
+              Incorrect credentials. Please try again.
             </p>
           )}
 
@@ -86,10 +86,6 @@ export default function Login() {
             Sign in
           </Button>
         </form>
-
-        <p className="mt-6 text-center text-xs text-content-muted">
-          Demo · sam@q.app · password <span className="font-medium">focus</span>
-        </p>
       </motion.div>
     </div>
   )

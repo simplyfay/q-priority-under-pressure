@@ -2,6 +2,7 @@ import * as React from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
+import { useTasks } from '../lib/tasks'
 
 // The full pool Q watches quietly. One of these (the Q3 proposal) is what
 // Activate later surfaces; the rest are the "11 others waiting."
@@ -12,7 +13,7 @@ const tasks = [
   { title: 'Approve design mockups', meta: 'Waiting on you · 1h' },
   { title: 'Send weekly status update', meta: 'Due today · Medium' },
   { title: 'Reply to client email', meta: 'Due today · Low' },
-  { title: 'Schedule 1:1 with Jordan', meta: 'Suggested · Low urgency' },
+  { title: 'Schedule 1:1 with Mina', meta: 'Suggested · Low urgency' },
   { title: 'Review pull request #241', meta: 'Blocking 2 others · Medium' },
   { title: 'Update the roadmap doc', meta: 'This week · Low' },
   { title: 'Book travel for offsite', meta: 'This week · Low' },
@@ -23,6 +24,8 @@ const tasks = [
 export default function AmbientView() {
   const [searchParams] = useSearchParams()
   const [open, setOpen] = React.useState(searchParams.get('tasks') === '1')
+  const { completed, total, progress } = useTasks()
+  const pct = Math.round(progress * 100)
 
   return (
     <motion.div
@@ -43,10 +46,15 @@ export default function AmbientView() {
         <div className="mt-8">
           <div className="mb-2 flex justify-between text-xs text-content-muted">
             <span>Day progress</span>
-            <span>40%</span>
+            <span>
+              {completed} of {total} · {pct}%
+            </span>
           </div>
           <div className="h-1.5 overflow-hidden rounded-full bg-surface-elevated">
-            <div className="h-full w-[40%] rounded-full bg-action-primary" />
+            <div
+              className="h-full rounded-full bg-action-primary transition-[width] duration-500"
+              style={{ width: `${pct}%` }}
+            />
           </div>
         </div>
       </div>

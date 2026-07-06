@@ -1,12 +1,16 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
+import { useTasks } from '../lib/tasks'
 
 export default function TaskCard() {
   const navigate = useNavigate()
+  const { activeTask } = useTasks()
+
   return (
     <div className="flex min-h-[calc(100vh-3.5rem)] flex-col bg-surface-default">
-      <div className="flex flex-1 flex-col items-center justify-center px-6 py-10">
+      {/* Eyebrow rests in the upper third; the card centers in the middle. */}
+      <div className="flex flex-1 flex-col items-center px-6 pb-10 pt-[14vh]">
         <p className="mb-6 text-sm text-content-secondary">
           Here&apos;s where to start.
         </p>
@@ -18,25 +22,30 @@ export default function TaskCard() {
           className="w-full max-w-md rounded-2xl bg-surface-raised p-6 shadow-lg"
         >
           <p className="mb-3 text-xs font-medium tracking-widest text-content-accent uppercase">
-            HIGHEST IMPACT · DUE BY 3PM · FROM YOUR MANAGER
+            {activeTask.eyebrow}
           </p>
 
           <h1 className="mb-2 text-3xl leading-tight font-bold text-content-primary">
-            Review Q3 proposal draft
+            {activeTask.title}
           </h1>
 
           <p className="mb-6 text-base leading-relaxed text-content-secondary">
-            Q surfaced this from your context — it&apos;s the oldest unblocked
-            item and three people are waiting on it before end of day.
+            {activeTask.rationale}
           </p>
 
           <div className="mb-6 flex flex-wrap gap-2">
-            <span className="rounded-full bg-surface-elevated px-3 py-1 text-xs text-state-urgent">
-              URGENT
-            </span>
-            <span className="rounded-full bg-surface-elevated px-3 py-1 text-xs text-content-accent">
-              HIGH IMPACT
-            </span>
+            {activeTask.tags.map((tag) => (
+              <span
+                key={tag.label}
+                className={`rounded-full bg-surface-elevated px-3 py-1 text-xs ${
+                  tag.tone === 'urgent'
+                    ? 'text-state-urgent'
+                    : 'text-content-accent'
+                }`}
+              >
+                {tag.label}
+              </span>
+            ))}
           </div>
 
           <div className="flex gap-3">
@@ -58,7 +67,7 @@ export default function TaskCard() {
         </motion.article>
 
         <p className="mt-4 text-center text-xs text-content-muted">
-          11 others are waiting. They can.
+          11 others are waiting. They can wait.
         </p>
       </div>
     </div>

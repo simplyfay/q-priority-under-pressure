@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom'
 import AppNav from './components/AppNav'
 import { AuthProvider, RequireAuth } from './lib/auth'
+import { TaskProvider } from './lib/tasks'
 import Login from './screens/Login'
 import DesignSystem from './screens/DesignSystem'
 import AmbientView from './screens/AmbientView'
@@ -25,6 +26,7 @@ function AppLayout() {
 function App() {
   return (
     <AuthProvider>
+      <TaskProvider>
       <BrowserRouter>
         <Routes>
           {/* Login — no nav */}
@@ -53,6 +55,7 @@ function App() {
           <Route path="*" element={<Navigate to="/ambient" replace />} />
         </Routes>
       </BrowserRouter>
+      </TaskProvider>
     </AuthProvider>
   )
 }

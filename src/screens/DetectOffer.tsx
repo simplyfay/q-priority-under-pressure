@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
+import { useTasks } from '../lib/tasks'
 
 const backgroundTasks = [
   {
@@ -16,13 +17,15 @@ const backgroundTasks = [
     meta: 'Waiting on you · 1h',
   },
   {
-    title: 'Schedule 1:1 with Jordan',
+    title: 'Schedule 1:1 with Mina',
     meta: 'Suggested · Low urgency',
   },
 ]
 
 export default function DetectOffer() {
   const navigate = useNavigate()
+  const { resetTask } = useTasks()
+
   return (
     <div className="relative min-h-[calc(100vh-3.5rem)] overflow-hidden bg-surface-default">
       <div
@@ -76,7 +79,10 @@ export default function DetectOffer() {
               variant="primary"
               size="lg"
               className="w-full"
-              onClick={() => navigate('/activate')}
+              onClick={() => {
+                resetTask()
+                navigate('/activate')
+              }}
             >
               Yes, help me focus
             </Button>
